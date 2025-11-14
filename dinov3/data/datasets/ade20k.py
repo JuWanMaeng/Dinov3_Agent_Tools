@@ -37,7 +37,8 @@ def _load_segmentation(root: str, split_file_names: List[str]):
 
 
 def _load_file_paths(root: str, split: _Split) -> Tuple[List[str], List[str]]:
-    with open(os.path.join(root, f"ADE20K_object150_{split.value}.txt")) as f:
+    # with open(os.path.join(root, f"ADE20K_object150_{split.value}.txt")) as f:
+    with open(os.path.join(root, f"{split.value}.txt")) as f:
         split_file_names = sorted(f.read().strip().split("\n"))
 
     all_segmentation_paths = _load_segmentation(root, split_file_names)
@@ -73,6 +74,12 @@ class ADE20K(ExtendedVisionDataset):
     def get_image_data(self, index: int) -> bytes:
         image_relpath = self.image_paths[index]
         image_full_path = os.path.join(self.root, image_relpath)
+        
+        # ⬅️ [핵심 수정 1] 경로 정규화 및 슬래시 통일
+        # os.path.normpath는 구분자를 OS 스타일로 바꾸므로, 
+        # 최종적으로 Python이 요구하는 '/'로 다시 통일합니다.
+        image_full_path = os.path.normpath(image_full_path).replace("\\", "/")
+        
         with open(image_full_path, mode="rb") as f:
             image_data = f.read()
         return image_data
@@ -80,6 +87,10 @@ class ADE20K(ExtendedVisionDataset):
     def get_target(self, index: int) -> Any:
         target_relpath = self.target_paths[index]
         target_full_path = os.path.join(self.root, target_relpath)
+        
+        # ⬅️ [핵심 수정 2] 경로 정규화 및 슬래시 통일
+        target_full_path = os.path.normpath(target_full_path).replace("\\", "/")
+        
         with open(target_full_path, mode="rb") as f:
             target_data = f.read()
         return target_data

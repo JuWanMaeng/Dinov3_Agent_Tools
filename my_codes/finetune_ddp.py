@@ -1,6 +1,6 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 #
-# This software may be used and distributed in accordance
+# This software may be used and distributed in accordance with
 # the terms of the DINOv3 License Agreement.
 
 from functools import partial
@@ -9,15 +9,15 @@ import numpy as np
 import os
 import random
 import argparse #<-- 추가됨
-import sys  # <-- 이 줄 추가 (유니코드 공백 수정)
-import time # <-- 이 줄 추가 (유니코드 공백 수정)
+import sys  # <-- 이 줄 추가
+import time # <-- 이 줄 추가
 
 import torch
-# import torch.distributed as dist  # <-- 분산 학습 제거
+import torch.distributed as dist
 from omegaconf import OmegaConf #<-- 추가됨
 
 from dinov3.data import DatasetWithEnumeratedTargets, SamplerType, make_data_loader, make_dataset
-# import dinov3.distributed as distributed # <-- 분산 학습 제거
+import dinov3.distributed as distributed
 from dinov3.eval.segmentation.eval import evaluate_segmentation_model
 from dinov3.eval.segmentation.loss import MultiSegmentationLoss
 from dinov3.eval.segmentation.metrics import SEGMENTATION_METRICS
@@ -40,8 +40,9 @@ def set_random_seed(seed):
 
 def setup_logging(config, output_dir: str, time_prefix: str) -> None:
     """로깅을 설정하는 함수"""
-    # 분산 환경이 아니므로 항상 메인 프로세스처럼 동작합니다.
-    level = logging.DEBUG if hasattr(config, "logging") and config.logging.debug else logging.INFO
+    level = logging.INFO
+    if distributed.is_main_process():
+        level = logging.DEBUG if hasattr(config, "logging") and config.logging.debug else logging.INFO
     
     logger = logging.getLogger("dinov3")
     logger.setLevel(level)
@@ -59,14 +60,15 @@ def setup_logging(config, output_dir: str, time_prefix: str) -> None:
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    # 파일 핸들러 생성 (distributed.is_main_process() 조건 제거)
-    file_handler = logging.FileHandler(os.path.join(output_dir, f"{time_prefix}.log"), mode="a")
-    file_handler.setLevel(level)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    # 파일 핸들러 생성 (메인 프로세스에서만)
+    if distributed.is_main_process():
+        file_handler = logging.FileHandler(os.path.join(output_dir, f"{time_prefix}.log"), mode="a")
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
-    # config 파일 저장
-    OmegaConf.save(config=config, f=os.path.join(output_dir, f"{time_prefix}.yaml"))
+        # config 파일 저장
+        OmegaConf.save(config=config, f=os.path.join(output_dir, f"{time_prefix}.yaml"))
 
 
 logger = logging.getLogger("dinov3")
@@ -77,9 +79,7 @@ class InfiniteDataloader:
         self.dataloader = dataloader
         self.data_iterator = iter(dataloader)
         self.sampler = dataloader.sampler
-        
-        # 분산 샘플러가 아니어도 epoch 속성이 필요할 수 있으므로, 없으면 추가합니다.
-        if self.sampler is not None and not hasattr(self.sampler, "epoch"):
+        if not hasattr(self.sampler, "epoch"):
             self.sampler.epoch = 0  # type: ignore
 
     def __iter__(self):
@@ -92,9 +92,7 @@ class InfiniteDataloader:
         try:
             data = next(self.data_iterator)
         except StopIteration:
-            # 분산 샘플러가 아닐 경우에도 epoch를 증가시켜 셔플링이 다시 되도록 합니다.
-            if self.sampler is not None:
-                self.sampler.epoch += 1
+            self.sampler.epoch += 1
             self.data_iterator = iter(self.dataloader)
             data = next(self.data_iterator)
         return data
@@ -106,7 +104,7 @@ def worker_init_fn(worker_id, num_workers, rank, seed):
     Args:
         worker_id (int): Worker id.
         num_workers (int): Number of workers.
-        rank (int): The rank of current process. (단일 GPU에서는 0으로 고정)
+        rank (int): The rank of current process.
         seed (int): The random seed to use.
     """
     worker_seed = num_workers * rank + worker_id + seed
@@ -141,8 +139,7 @@ def validate(
     logger.info(f"Step {global_step}: {new_metric_values_dict}")
     # `segmentation_model` is a module list of [backbone, decoder]
     # Only put the head in train mode
-    # .module 접근 제거 (DistributedDataParallel 래퍼가 없음)
-    segmentation_model.segmentation_model[1].train()
+    segmentation_model.module.segmentation_model[1].train()
     is_better = False
     if new_metric_values_dict[metric_to_save] > current_best_metric_to_save_value:
         is_better = True
@@ -171,9 +168,6 @@ def train_step(
     with torch.autocast("cuda", dtype=model_dtype, enabled=True if model_dtype is not None else False):
         pred = segmentation_model(batch_img)  # B x num_classes x h x w
         gt = torch.squeeze(gt).long()  # Adapt gt dimension to enable loss calculation
-        # 0/255로 저장된 마스크를 0/1로 변환
-        # (값이 255인 픽셀을 1로 강제, 0은 0으로 유지)
-        # gt = gt // 255
 
     # c) compute loss
     if gt.shape[-2:] != pred.shape[-2:]:
@@ -184,14 +178,12 @@ def train_step(
     if scaler is not None:
         scaler.scale(loss).backward()
         scaler.unscale_(optimizer)
-        # .module 접근 제거
-        torch.nn.utils.clip_grad_norm_(segmentation_model.parameters(), optimizer_gradient_clip)
+        torch.nn.utils.clip_grad_norm_(segmentation_model.module.parameters(), optimizer_gradient_clip)
         scaler.step(optimizer)
         scaler.update()
     else:
         loss.backward()
-        # .module 접근 제거
-        torch.nn.utils.clip_grad_norm_(segmentation_model.parameters(), optimizer_gradient_clip)
+        torch.nn.utils.clip_grad_norm_(segmentation_model.module.parameters(), optimizer_gradient_clip)
         optimizer.step()
 
     if global_step > 0:  # inheritance from old mmcv code
@@ -225,21 +217,11 @@ def train_segmentation(
         num_classes=config.decoder_head.num_classes,
         autocast_dtype=autocast_dtype,
     )
-    
-    # --- 분산 학습 관련 코드 수정 ---
-    # global_device = distributed.get_rank() # <-- 삭제
-    # local_device = torch.cuda.current_device() # <-- 삭제
-    # 단일 GPU (또는 CPU) 환경을 위한 device 설정
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
-    
-    # segmentation_model = torch.nn.parallel.DistributedDataParallel( # <-- 삭제
-    #     segmentation_model.to(local_device), device_ids=[local_device] # <-- 삭제
-    # ) # <-- 삭제
-    # DDP 대신 모델을 직접 device로 이동
-    segmentation_model = segmentation_model.to(device)
-    # --- 수정 끝 ---
-    
+    global_device = distributed.get_rank()
+    local_device = torch.cuda.current_device()
+    segmentation_model = torch.nn.parallel.DistributedDataParallel(
+        segmentation_model.to(local_device), device_ids=[local_device]
+    )  # should be local rank
     model_parameters = filter(lambda p: p.requires_grad, segmentation_model.parameters())
     logger.info(f"Number of trainable parameters: {sum(p.numel() for p in model_parameters)}")
 
@@ -263,19 +245,17 @@ def train_segmentation(
         )
     )
     train_sampler_type = None
-    # if distributed.is_enabled(): # <-- 분산 샘플러 로직 삭제
-    #     train_sampler_type = SamplerType.DISTRIBUTED
-    
-    # rank를 0으로 고정하고, seed에서 rank 덧셈 제거
+    if distributed.is_enabled():
+        train_sampler_type = SamplerType.DISTRIBUTED
     init_fn = partial(
-        worker_init_fn, num_workers=config.num_workers, rank=0, seed=config.seed
+        worker_init_fn, num_workers=config.num_workers, rank=global_device, seed=config.seed + global_device
     )
     train_dataloader = InfiniteDataloader(
         make_data_loader(
             dataset=train_dataset,
             batch_size=config.bs,
             num_workers=config.num_workers,
-            sampler_type=train_sampler_type, # None이 전달됨 (기본 샘플러 사용)
+            sampler_type=train_sampler_type,
             shuffle=True,
             persistent_workers=False,
             worker_init_fn=init_fn,
@@ -289,13 +269,13 @@ def train_segmentation(
         )
     )
     val_sampler_type = None
-    # if distributed.is_enabled(): # <-- 분산 샘플러 로직 삭제
-    #     val_sampler_type = SamplerType.DISTRIBUTED
+    if distributed.is_enabled():
+        val_sampler_type = SamplerType.DISTRIBUTED
     val_dataloader = make_data_loader(
         dataset=val_dataset,
-        batch_size=1, # 평가 시 보통 1
+        batch_size=1,
         num_workers=config.num_workers,
-        sampler_type=val_sampler_type, # None이 전달됨 (기본 샘플러 사용)
+        sampler_type=val_sampler_type,
         drop_last=False,
         shuffle=False,
         persistent_workers=True,
@@ -331,12 +311,11 @@ def train_segmentation(
     global_best_metric_values = {metric: 0.0 for metric in SEGMENTATION_METRICS}
 
     # 5- train the model
-    # 유니코드 공백을 표준 공백 두 칸으로 수정
     metric_logger = MetricLogger(delimiter="  ")
     metric_logger.add_meter("loss", SmoothedValue(window_size=4, fmt="{value:.3f}"))
     for batch in metric_logger.log_every(
         train_dataloader,
-        10,
+        50,
         header="Train: ",
         start_iteration=global_step,
         n_iterations=total_iter,
@@ -346,7 +325,7 @@ def train_segmentation(
         loss = train_step(
             segmentation_model,
             batch,
-            device, # local_device 대신 device 사용
+            local_device,
             scaler,
             optimizer,
             config.optimizer.gradient_clip,
@@ -358,11 +337,11 @@ def train_segmentation(
         global_step += 1
         metric_logger.update(loss=loss)
         if global_step % config.eval.eval_interval == 0:
-            # dist.barrier() # <-- 동기화 코드 삭제
+            dist.barrier()
             is_better, best_metric_values_dict = validate(
                 segmentation_model,
                 val_dataloader,
-                device, # local_device 대신 device 사용
+                local_device,
                 autocast_dtype,
                 config.eval.crop_size,
                 config.eval.stride,
@@ -381,7 +360,7 @@ def train_segmentation(
             is_better, best_metric_values_dict = validate(
                 segmentation_model,
                 val_dataloader,
-                device, # local_device 대신 device 사용
+                local_device,
                 autocast_dtype,
                 config.eval.crop_size,
                 config.eval.stride,
@@ -399,8 +378,7 @@ def train_segmentation(
     # Only save the decoder head
     torch.save(
         {
-            # .module 접근 제거
-            "model": {k: v for k, v in segmentation_model.state_dict().items() if "segmentation_model.1" in k},
+            "model": {k: v for k, v in segmentation_model.module.state_dict().items() if "segmentation_model.1" in k},
             "optimizer": optimizer.state_dict(),
         },
         os.path.join(config.output_dir, "model_final.pth"),
@@ -464,15 +442,15 @@ def main():
     os.makedirs(config.output_dir, exist_ok=True)
     config.seed = args.seed # config 파일에 seed가 없어도 여기서 설정됨
 
-    # 4. 분산 학습 모드 초기화 (제거)
-    # distributed.enable() # <-- 삭제
+    # 4. 분산 학습 모드 초기화
+    distributed.enable()
 
     # 5. 로깅 설정
     setup_logging(config=config, output_dir=config.output_dir, time_prefix="")
 
     # 6. 랜덤 시드 설정
-    # rank 덧셈 제거
-    set_random_seed(config.seed)
+    # 각 프로세스(GPU)가 다른 시드를 갖도록 rank를 더해줌
+    set_random_seed(config.seed + distributed.get_rank())
 
     logger.info("Config:\n%s", OmegaConf.to_yaml(config))
     logger.info("Command line args:\n%s", args)
@@ -482,8 +460,7 @@ def main():
     
     # REPO_DIR은 이 스크립트가 실행되는 dinov3 루트 디렉토리입니다.
     # source='local'은 REPO_DIR의 hubconf.py를 사용하라는 의미입니다.
-    # 이 경로는 실제 환경에 맞게 수정해야 할 수 있습니다.
-    repo_dir = r'C:\workspace\dinov3' # 예시 경로, 실제 환경에 맞게 수정하세요.
+    repo_dir = '/home/jwmaeng/dinov3'
     
     # 제공된 코드를 기반으로 weights 파일 경로를 동적으로 구성합니다.
     # (예: args.model == 'dinov3_vit7b16' -> 'weights/dinov3_vit7b16_pretrain.pth')

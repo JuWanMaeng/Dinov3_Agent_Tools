@@ -39,9 +39,9 @@ def _get_backbone_out_indices(
     ViT/g (40 blocks): [9, 19, 29, 39]
     """
     n_blocks = getattr(model, "n_blocks", 1)
-    if backbone_out_layers == BackboneLayersSet.LAST:
+    if backbone_out_layers == "LAST":
         out_indices = [n_blocks - 1]
-    elif backbone_out_layers == BackboneLayersSet.FOUR_LAST:
+    elif backbone_out_layers == "FOUR_LAST":
         out_indices = [i for i in range(n_blocks - 4, n_blocks)]
     elif backbone_out_layers == BackboneLayersSet.FOUR_EVEN_INTERVALS:
         # Take indices that were used in the paper (for ViT/L only)

@@ -50,30 +50,31 @@ def _parse_dataset_str(dataset_str: str):
     kwargs = {}
 
     for token in tokens[1:]:
-        key, value = token.split("=")
-        assert key in ("root", "extra", "split")
-        kwargs[key] = value
-
-    if name == "ImageNet":
-        class_ = ImageNet
-        if "split" in kwargs:
-            kwargs["split"] = ImageNet.Split[kwargs["split"]]
-    elif name == "ImageNet22k":
-        class_ = ImageNet22k
-    elif name == "ADE20K":
-        class_ = ADE20K
-        if "split" in kwargs:
-            kwargs["split"] = ADE20K.Split[kwargs["split"]]
-    elif name == "CocoCaptions":
-        class_ = CocoCaptions
-        if "split" in kwargs:
-            kwargs["split"] = CocoCaptions.Split[kwargs["split"]]
-    elif name == "NYU":
-        class_ = NYU
-        if "split" in kwargs:
-            kwargs["split"] = NYU.Split[kwargs["split"]]
-    else:
-        raise ValueError(f'Unsupported dataset "{name}"')
+        if '=' in token:
+            key, value = token.split("=")
+            assert key in ("root", "extra", "split")
+            kwargs[key] = value
+    kwargs['root'] = "C:/data/DinoCrack" 
+    # if name == "ImageNet":
+    #     class_ = ImageNet
+    #     if "split" in kwargs:
+    #         kwargs["split"] = ImageNet.Split[kwargs["split"]]
+    # elif name == "ImageNet22k":
+    #     class_ = ImageNet22k
+    # elif name == "ADE20K":
+    class_ = ADE20K
+    if "split" in kwargs:
+        kwargs["split"] = ADE20K.Split[kwargs["split"]]
+    # elif name == "CocoCaptions":
+    #     class_ = CocoCaptions
+    #     if "split" in kwargs:
+    #         kwargs["split"] = CocoCaptions.Split[kwargs["split"]]
+    # elif name == "NYU":
+    #     class_ = NYU
+    #     if "split" in kwargs:
+    #         kwargs["split"] = NYU.Split[kwargs["split"]]
+    # else:
+    #     raise ValueError(f'Unsupported dataset "{name}"')
 
     return class_, kwargs
 

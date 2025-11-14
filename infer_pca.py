@@ -33,7 +33,7 @@ print("✅ Model loaded to cuda with .half()")
 # -------------------------------------------------
 img_size = 512
 crop_size = 512 # ⬅️ 1024 리사이즈 후 512 크롭
-img_path = r"C:\data\251102\crack\[000246]R15xC24-2503-89pxl.png"
+img_path = r"C:\data\251102\crack\[000009]R19xC1-4-158pxl_0.png"
 img = Image.open(img_path).convert("RGB")
 
 transform = T.Compose([
