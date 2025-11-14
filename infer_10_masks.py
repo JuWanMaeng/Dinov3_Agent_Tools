@@ -22,9 +22,9 @@ def min_max_scale(img):
 # (A-2) ⬅️ (추가) 경로 설정
 # -------------------------------------------------
 # ❗️ 1. 이미지가 모여있는 폴더 경로
-input_dir = r"C:\data\251102\crack" 
+input_dir = r"C:\workspace\dinov3\imgs\particles" 
 # ❗️ 2. 결과 오버레이 그리드를 저장할 폴더 경로 (이름 변경)
-save_dir = "output/visualizations_base_all_10_masks" 
+save_dir = "output/particles_masks" 
 # ❗️ 3. 처리할 이미지 확장자
 valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tif')
 
@@ -42,8 +42,8 @@ patch_size = model.patch_embed.patch_size[0] # (16)
 # -------------------------------------------------
 # 2. 전처리용 Transform 정의
 # -------------------------------------------------
-img_size = 2048
-crop_size = 2048 
+img_size = 1024
+crop_size = 1024 
 
 # (1) DINOv3 입력을 위한 정규화 트랜스폼
 transform_dino = T.Compose([
@@ -72,7 +72,7 @@ print(f"Saving results to: {save_dir}")
 # "검은색" 특징을 얼마나 중요하게 볼지 결정하는 가중치
 color_weight = 10.0
 # K-Means 클러스터 개수
-k = 10 
+k = 6
 # K-Means 반복 실행 횟수
 n_init = 10
 # 오버레이 설정
@@ -153,13 +153,6 @@ for filename in tqdm(os.listdir(input_dir), desc="Processing images", ncols=100)
         labels = kmeans.fit_predict(combined_features) 
         kmeans_img = labels.reshape(H, W) # (128, 128)
         tqdm.write(f"✅ K-Means complete for {filename}")
-
-        # -------------------------------------------------
-        # 5.1 ⬅️ (삭제) Crack 레이블 자동 탐색
-        # -------------------------------------------------
-        
-        # -------------------------------------------------
-        # 5.2 ⬅️ (삭제) 매끈한 마스크 후처리
         # -------------------------------------------------
 
         # -------------------------------------------------
@@ -168,7 +161,7 @@ for filename in tqdm(os.listdir(input_dir), desc="Processing images", ncols=100)
         save_image_path = os.path.join(save_dir, f"{base_name}_K10_All_Masks_Overlay.png") 
 
         # 3x4 그리드 (총 12칸)
-        rows = 3
+        rows = 2
         cols = 4
         plt.figure(figsize=(cols * 5, rows * 5)) # 전체 Figure 크기 (20, 15)
 

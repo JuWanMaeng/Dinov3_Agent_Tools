@@ -5492,3 +5492,416 @@ Namespace(config_file='.\\my_semiconductor_config.yaml', model='dinov3_vitb16', 
 2025-11-14 11:23:50 |  | INFO | dinov3 | Training is done!
 2025-11-14 11:23:50 |  | INFO | dinov3 | Final best metrics: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
 2025-11-14 11:23:51 |  | INFO | dinov3 | Training finished.
+2025-11-14 11:38:38 |  | INFO | dinov3 | Config:
+bs: 2
+n_gpus: 1
+num_workers: 4
+metric_to_save: mIoU
+model_dtype: FLOAT32
+scheduler:
+  total_iter: 500
+  type: WarmupOneCycleLR
+  constructor_kwargs:
+    warmup_iters: 50
+    warmup_ratio: 1.0e-06
+    final_div_factor: .inf
+    pct_start: 0
+    anneal_strategy: cos
+    use_beta1: false
+    update_momentum: false
+optimizer:
+  lr: 0.001
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.001
+  gradient_clip: 'inf'
+datasets:
+  root: C:/data/DinoCrack
+  train: ADE20K:split=TRAIN
+  val: ADE20K:split=VAL
+train:
+  diceloss_weight: 0.0
+  celoss_weight: 1.0
+decoder_head:
+  type: linear
+  backbone_out_layers: LAST
+  use_cls_token: false
+  use_batchnorm: true
+  use_backbone_norm: true
+  num_classes: 2
+transforms:
+  train:
+    img_size: 512
+    random_img_size_ratio_range:
+    - 0.5
+    - 2.0
+    crop_size:
+    - 512
+    - 512
+    flip_prob: 0.5
+  eval:
+    img_size: 512
+eval:
+  compute_metric_per_image: false
+  reduce_zero_label: true
+  mode: slide
+  crop_size: 512
+  stride: 341
+  eval_interval: 100
+  use_tta: false
+output_dir: debug_output
+seed: 42
+
+2025-11-14 11:38:38 |  | INFO | dinov3 | Command line args:
+Namespace(config_file='my_semiconductor_config.yaml', model='dinov3_vitb16', output_dir='debug_output', seed=42, opts=None)
+2025-11-14 11:38:38 |  | INFO | dinov3 | Loading backbone model via torch.hub: dinov3_vitb16
+2025-11-14 11:38:38 |  | INFO | dinov3 | Attempting to load weights from: weights/dinov3_vitb16_pretrain.pth
+2025-11-14 11:38:38 |  | INFO | dinov3 | using base=100 for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using min_period=None for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using max_period=None for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using normalize_coords=separate for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using shift_coords=None for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using rescale_coords=2 for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using jitter_coords=None for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using dtype=fp32 for rope new
+2025-11-14 11:38:38 |  | INFO | dinov3 | using mlp layer as FFN
+2025-11-14 11:38:38 |  | INFO | dinov3 | Backbone model loaded and set to eval mode.
+2025-11-14 11:38:38 |  | INFO | dinov3 | Starting segmentation training...
+2025-11-14 11:38:38 |  | INFO | dinov3 | Initializing the segmentation model
+2025-11-14 11:38:38 |  | INFO | dinov3 | Using device: cuda:0
+2025-11-14 11:38:38 |  | INFO | dinov3 | Number of trainable parameters: 3074
+2025-11-14 11:38:38 |  | INFO | dinov3 | using dataset: "ADE20K:split=TRAIN:root=C:/data/DinoCrack"
+2025-11-14 11:38:38 |  | INFO | dinov3 | # of dataset samples: 12
+2025-11-14 11:38:38 |  | INFO | dinov3 | sampler: none
+2025-11-14 11:38:38 |  | INFO | dinov3 | using PyTorch data loader
+2025-11-14 11:38:38 |  | INFO | dinov3 | # of batches: 6
+2025-11-14 11:38:40 |  | INFO | dinov3 | using dataset: "ADE20K:split=VAL:root=C:/data/DinoCrack"
+2025-11-14 11:38:40 |  | INFO | dinov3 | # of dataset samples: 4
+2025-11-14 11:38:40 |  | INFO | dinov3 | sampler: none
+2025-11-14 11:38:40 |  | INFO | dinov3 | using PyTorch data loader
+2025-11-14 11:38:40 |  | INFO | dinov3 | # of batches: 4
+2025-11-14 11:47:00 |  | INFO | dinov3 | Config:
+bs: 2
+n_gpus: 1
+num_workers: 4
+metric_to_save: mIoU
+model_dtype: FLOAT32
+scheduler:
+  total_iter: 500
+  type: WarmupOneCycleLR
+  constructor_kwargs:
+    warmup_iters: 50
+    warmup_ratio: 1.0e-06
+    final_div_factor: .inf
+    pct_start: 0
+    anneal_strategy: cos
+    use_beta1: false
+    update_momentum: false
+optimizer:
+  lr: 0.001
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.001
+  gradient_clip: 'inf'
+datasets:
+  root: C:/data/DinoCrack
+  train: ADE20K:split=TRAIN
+  val: ADE20K:split=VAL
+train:
+  diceloss_weight: 0.0
+  celoss_weight: 1.0
+decoder_head:
+  type: linear
+  backbone_out_layers: LAST
+  use_cls_token: false
+  use_batchnorm: true
+  use_backbone_norm: true
+  num_classes: 2
+transforms:
+  train:
+    img_size: 512
+    random_img_size_ratio_range:
+    - 0.5
+    - 2.0
+    crop_size:
+    - 512
+    - 512
+    flip_prob: 0.5
+  eval:
+    img_size: 512
+eval:
+  compute_metric_per_image: false
+  reduce_zero_label: true
+  mode: slide
+  crop_size: 512
+  stride: 341
+  eval_interval: 100
+  use_tta: false
+output_dir: debug_output
+seed: 42
+
+2025-11-14 11:47:00 |  | INFO | dinov3 | Command line args:
+Namespace(config_file='.\\my_semiconductor_config.yaml', model='dinov3_vitb16', output_dir='debug_output', seed=42, opts=None)
+2025-11-14 11:47:00 |  | INFO | dinov3 | Loading backbone model via torch.hub: dinov3_vitb16
+2025-11-14 11:47:00 |  | INFO | dinov3 | Attempting to load weights from: weights/dinov3_vitb16_pretrain.pth
+2025-11-14 11:47:00 |  | INFO | dinov3 | using base=100 for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using min_period=None for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using max_period=None for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using normalize_coords=separate for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using shift_coords=None for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using rescale_coords=2 for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using jitter_coords=None for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using dtype=fp32 for rope new
+2025-11-14 11:47:00 |  | INFO | dinov3 | using mlp layer as FFN
+2025-11-14 11:47:00 |  | INFO | dinov3 | Backbone model loaded and set to eval mode.
+2025-11-14 11:47:00 |  | INFO | dinov3 | Starting segmentation training...
+2025-11-14 11:47:00 |  | INFO | dinov3 | Initializing the segmentation model
+2025-11-14 11:47:00 |  | INFO | dinov3 | Using device: cuda:0
+2025-11-14 11:47:00 |  | INFO | dinov3 | Number of trainable parameters: 3074
+2025-11-14 11:47:00 |  | INFO | dinov3 | using dataset: "ADE20K:split=TRAIN:root=C:/data/DinoCrack"
+2025-11-14 11:47:00 |  | INFO | dinov3 | # of dataset samples: 12
+2025-11-14 11:47:00 |  | INFO | dinov3 | sampler: none
+2025-11-14 11:47:00 |  | INFO | dinov3 | using PyTorch data loader
+2025-11-14 11:47:00 |  | INFO | dinov3 | # of batches: 6
+2025-11-14 11:47:00 |  | INFO | dinov3 | using dataset: "ADE20K:split=VAL:root=C:/data/DinoCrack"
+2025-11-14 11:47:00 |  | INFO | dinov3 | # of dataset samples: 4
+2025-11-14 11:47:00 |  | INFO | dinov3 | sampler: none
+2025-11-14 11:47:00 |  | INFO | dinov3 | using PyTorch data loader
+2025-11-14 11:47:00 |  | INFO | dinov3 | # of batches: 4
+2025-11-14 11:47:06 |  | INFO | dinov3 | Train:   [  0/500]  eta: 0:50:41  loss: 0.041  time: 6.083097  data: 5.741965  mem: 335  (max mem: 400)
+2025-11-14 11:47:14 |  | INFO | dinov3 | Train:   [ 10/500]  eta: 0:09:50  loss: 0.012  time: 1.205161  data: 1.127810  mem: 335  (max mem: 400)
+2025-11-14 11:47:28 |  | INFO | dinov3 | Train:   [ 20/500]  eta: 0:10:23  loss: 0.030  time: 1.060490  data: 0.992705  mem: 335  (max mem: 400)
+2025-11-14 11:47:41 |  | INFO | dinov3 | Config:
+bs: 2
+n_gpus: 1
+num_workers: 4
+metric_to_save: mIoU
+model_dtype: FLOAT32
+scheduler:
+  total_iter: 500
+  type: WarmupOneCycleLR
+  constructor_kwargs:
+    warmup_iters: 50
+    warmup_ratio: 1.0e-06
+    final_div_factor: .inf
+    pct_start: 0
+    anneal_strategy: cos
+    use_beta1: false
+    update_momentum: false
+optimizer:
+  lr: 0.001
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 0.001
+  gradient_clip: 'inf'
+datasets:
+  root: C:/data/DinoCrack
+  train: ADE20K:split=TRAIN
+  val: ADE20K:split=VAL
+train:
+  diceloss_weight: 0.0
+  celoss_weight: 1.0
+decoder_head:
+  type: linear
+  backbone_out_layers: LAST
+  use_cls_token: false
+  use_batchnorm: true
+  use_backbone_norm: true
+  num_classes: 2
+transforms:
+  train:
+    img_size: 512
+    random_img_size_ratio_range:
+    - 0.5
+    - 2.0
+    crop_size:
+    - 512
+    - 512
+    flip_prob: 0.5
+  eval:
+    img_size: 512
+eval:
+  compute_metric_per_image: false
+  reduce_zero_label: true
+  mode: slide
+  crop_size: 512
+  stride: 341
+  eval_interval: 50
+  use_tta: false
+output_dir: debug_output
+seed: 42
+
+2025-11-14 11:47:41 |  | INFO | dinov3 | Command line args:
+Namespace(config_file='.\\my_semiconductor_config.yaml', model='dinov3_vitb16', output_dir='debug_output', seed=42, opts=None)
+2025-11-14 11:47:41 |  | INFO | dinov3 | Loading backbone model via torch.hub: dinov3_vitb16
+2025-11-14 11:47:41 |  | INFO | dinov3 | Attempting to load weights from: weights/dinov3_vitb16_pretrain.pth
+2025-11-14 11:47:41 |  | INFO | dinov3 | using base=100 for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using min_period=None for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using max_period=None for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using normalize_coords=separate for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using shift_coords=None for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using rescale_coords=2 for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using jitter_coords=None for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using dtype=fp32 for rope new
+2025-11-14 11:47:41 |  | INFO | dinov3 | using mlp layer as FFN
+2025-11-14 11:47:42 |  | INFO | dinov3 | Backbone model loaded and set to eval mode.
+2025-11-14 11:47:42 |  | INFO | dinov3 | Starting segmentation training...
+2025-11-14 11:47:42 |  | INFO | dinov3 | Initializing the segmentation model
+2025-11-14 11:47:42 |  | INFO | dinov3 | Using device: cuda:0
+2025-11-14 11:47:42 |  | INFO | dinov3 | Number of trainable parameters: 3074
+2025-11-14 11:47:42 |  | INFO | dinov3 | using dataset: "ADE20K:split=TRAIN:root=C:/data/DinoCrack"
+2025-11-14 11:47:42 |  | INFO | dinov3 | # of dataset samples: 12
+2025-11-14 11:47:42 |  | INFO | dinov3 | sampler: none
+2025-11-14 11:47:42 |  | INFO | dinov3 | using PyTorch data loader
+2025-11-14 11:47:42 |  | INFO | dinov3 | # of batches: 6
+2025-11-14 11:47:42 |  | INFO | dinov3 | using dataset: "ADE20K:split=VAL:root=C:/data/DinoCrack"
+2025-11-14 11:47:42 |  | INFO | dinov3 | # of dataset samples: 4
+2025-11-14 11:47:42 |  | INFO | dinov3 | sampler: none
+2025-11-14 11:47:42 |  | INFO | dinov3 | using PyTorch data loader
+2025-11-14 11:47:42 |  | INFO | dinov3 | # of batches: 4
+2025-11-14 11:47:48 |  | INFO | dinov3 | Train:   [  0/500]  eta: 0:53:20  loss: 0.041  time: 6.401097  data: 6.013327  mem: 335  (max mem: 400)
+2025-11-14 11:47:56 |  | INFO | dinov3 | Train:   [ 10/500]  eta: 0:10:07  loss: 0.012  time: 1.240280  data: 1.150059  mem: 335  (max mem: 400)
+2025-11-14 11:48:10 |  | INFO | dinov3 | Train:   [ 20/500]  eta: 0:10:39  loss: 0.030  time: 1.078410  data: 1.009820  mem: 335  (max mem: 400)
+2025-11-14 11:48:25 |  | INFO | dinov3 | Train:   [ 30/500]  eta: 0:10:46  loss: 0.003  time: 1.450809  data: 1.375768  mem: 335  (max mem: 400)
+2025-11-14 11:48:33 |  | INFO | dinov3 | Train:   [ 40/500]  eta: 0:09:36  loss: 0.004  time: 1.172044  data: 1.105846  mem: 335  (max mem: 400)
+2025-11-14 11:48:57 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:28    time: 7.248573  data: 7.061651  mem: 338  (max mem: 400)
+2025-11-14 11:48:57 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:01    time: 1.839065  data: 1.765413  mem: 338  (max mem: 400)
+2025-11-14 11:48:57 |  | INFO | dinov3 | Validation:  Total time: 0:00:07 (1.839780 s / it)
+2025-11-14 11:48:57 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:48:57 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:48:57 |  | INFO | dinov3 | Step 50: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:48:57 |  | INFO | dinov3 | New best metrics at Step 50: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:48:57 |  | INFO | dinov3 | Train:   [ 50/500]  eta: 0:11:01  loss: 0.001  time: 1.613030  data: 1.179605  mem: 335  (max mem: 400)
+2025-11-14 11:49:13 |  | INFO | dinov3 | Train:   [ 60/500]  eta: 0:10:59  loss: 0.000  time: 2.001615  data: 1.561308  mem: 335  (max mem: 400)
+2025-11-14 11:49:22 |  | INFO | dinov3 | Train:   [ 70/500]  eta: 0:10:06  loss: 0.001  time: 1.264884  data: 1.197081  mem: 335  (max mem: 400)
+2025-11-14 11:49:38 |  | INFO | dinov3 | Train:   [ 80/500]  eta: 0:10:02  loss: 0.001  time: 1.235910  data: 1.169728  mem: 335  (max mem: 400)
+2025-11-14 11:49:54 |  | INFO | dinov3 | Train:   [ 90/500]  eta: 0:09:55  loss: 0.000  time: 1.594406  data: 1.525506  mem: 335  (max mem: 400)
+2025-11-14 11:50:02 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.051956  data: 0.021661  mem: 338  (max mem: 400)
+2025-11-14 11:50:02 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.037873  data: 0.005415  mem: 338  (max mem: 400)
+2025-11-14 11:50:02 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.037873 s / it)
+2025-11-14 11:50:02 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:50:02 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:50:02 |  | INFO | dinov3 | Step 100: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:50:02 |  | INFO | dinov3 | Train:   [100/500]  eta: 0:09:15  loss: 0.001  time: 1.209272  data: 1.134785  mem: 335  (max mem: 400)
+2025-11-14 11:50:18 |  | INFO | dinov3 | Train:   [110/500]  eta: 0:09:09  loss: 0.001  time: 1.220597  data: 1.138444  mem: 335  (max mem: 400)
+2025-11-14 11:50:37 |  | INFO | dinov3 | Train:   [120/500]  eta: 0:09:10  loss: 0.000  time: 1.746106  data: 1.675275  mem: 335  (max mem: 400)
+2025-11-14 11:50:46 |  | INFO | dinov3 | Train:   [130/500]  eta: 0:08:40  loss: 0.001  time: 1.385804  data: 1.329863  mem: 335  (max mem: 400)
+2025-11-14 11:51:02 |  | INFO | dinov3 | Train:   [140/500]  eta: 0:08:31  loss: 0.001  time: 1.255377  data: 1.192374  mem: 335  (max mem: 400)
+2025-11-14 11:51:11 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.051634  data: 0.019973  mem: 338  (max mem: 400)
+2025-11-14 11:51:12 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.036999  data: 0.005141  mem: 338  (max mem: 400)
+2025-11-14 11:51:12 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.037251 s / it)
+2025-11-14 11:51:12 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:51:12 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:51:12 |  | INFO | dinov3 | Step 150: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:51:19 |  | INFO | dinov3 | Train:   [150/500]  eta: 0:08:23  loss: 0.000  time: 1.652580  data: 1.571646  mem: 335  (max mem: 400)
+2025-11-14 11:51:27 |  | INFO | dinov3 | Train:   [160/500]  eta: 0:07:56  loss: 0.000  time: 1.251505  data: 1.174527  mem: 335  (max mem: 400)
+2025-11-14 11:51:43 |  | INFO | dinov3 | Train:   [170/500]  eta: 0:07:44  loss: 0.001  time: 1.181956  data: 1.106560  mem: 335  (max mem: 400)
+2025-11-14 11:51:58 |  | INFO | dinov3 | Train:   [180/500]  eta: 0:07:33  loss: 0.000  time: 1.552153  data: 1.472105  mem: 335  (max mem: 400)
+2025-11-14 11:52:06 |  | INFO | dinov3 | Train:   [190/500]  eta: 0:07:09  loss: 0.000  time: 1.174289  data: 1.105608  mem: 335  (max mem: 400)
+2025-11-14 11:52:22 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.055775  data: 0.020650  mem: 338  (max mem: 400)
+2025-11-14 11:52:22 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.037872  data: 0.005413  mem: 338  (max mem: 400)
+2025-11-14 11:52:22 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.038744 s / it)
+2025-11-14 11:52:22 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:52:22 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:52:22 |  | INFO | dinov3 | Step 200: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:52:22 |  | INFO | dinov3 | Train:   [200/500]  eta: 0:06:57  loss: 0.001  time: 1.173801  data: 1.096063  mem: 335  (max mem: 400)
+2025-11-14 11:52:37 |  | INFO | dinov3 | Train:   [210/500]  eta: 0:06:45  loss: 0.000  time: 1.537384  data: 1.450578  mem: 335  (max mem: 400)
+2025-11-14 11:52:45 |  | INFO | dinov3 | Train:   [220/500]  eta: 0:06:23  loss: 0.000  time: 1.154691  data: 1.082864  mem: 335  (max mem: 400)
+2025-11-14 11:53:00 |  | INFO | dinov3 | Train:   [230/500]  eta: 0:06:11  loss: 0.001  time: 1.149584  data: 1.082792  mem: 335  (max mem: 400)
+2025-11-14 11:53:15 |  | INFO | dinov3 | Train:   [240/500]  eta: 0:05:59  loss: 0.000  time: 1.513396  data: 1.443338  mem: 335  (max mem: 400)
+2025-11-14 11:53:23 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.050629  data: 0.015977  mem: 338  (max mem: 400)
+2025-11-14 11:53:23 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.035842  data: 0.003994  mem: 338  (max mem: 400)
+2025-11-14 11:53:23 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.036556 s / it)
+2025-11-14 11:53:23 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:53:23 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:53:23 |  | INFO | dinov3 | Step 250: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:53:23 |  | INFO | dinov3 | Train:   [250/500]  eta: 0:05:39  loss: 0.000  time: 1.152105  data: 1.083101  mem: 335  (max mem: 400)
+2025-11-14 11:53:38 |  | INFO | dinov3 | Train:   [260/500]  eta: 0:05:27  loss: 0.001  time: 1.131810  data: 1.058210  mem: 335  (max mem: 400)
+2025-11-14 11:53:53 |  | INFO | dinov3 | Train:   [270/500]  eta: 0:05:14  loss: 0.000  time: 1.474444  data: 1.402343  mem: 335  (max mem: 400)
+2025-11-14 11:54:00 |  | INFO | dinov3 | Train:   [280/500]  eta: 0:04:56  loss: 0.000  time: 1.116571  data: 1.055248  mem: 335  (max mem: 400)
+2025-11-14 11:54:15 |  | INFO | dinov3 | Train:   [290/500]  eta: 0:04:43  loss: 0.001  time: 1.114582  data: 1.049415  mem: 335  (max mem: 400)
+2025-11-14 11:54:22 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.048058  data: 0.015826  mem: 338  (max mem: 400)
+2025-11-14 11:54:23 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.035335  data: 0.004635  mem: 338  (max mem: 400)
+2025-11-14 11:54:23 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.035335 s / it)
+2025-11-14 11:54:23 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:54:23 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:54:23 |  | INFO | dinov3 | Step 300: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:54:30 |  | INFO | dinov3 | Train:   [300/500]  eta: 0:04:30  loss: 0.000  time: 1.478384  data: 1.400416  mem: 335  (max mem: 400)
+2025-11-14 11:54:37 |  | INFO | dinov3 | Train:   [310/500]  eta: 0:04:13  loss: 0.000  time: 1.121637  data: 1.052471  mem: 335  (max mem: 400)
+2025-11-14 11:54:52 |  | INFO | dinov3 | Train:   [320/500]  eta: 0:04:01  loss: 0.001  time: 1.115394  data: 1.050469  mem: 335  (max mem: 400)
+2025-11-14 11:55:07 |  | INFO | dinov3 | Train:   [330/500]  eta: 0:03:48  loss: 0.000  time: 1.486792  data: 1.410054  mem: 335  (max mem: 400)
+2025-11-14 11:55:15 |  | INFO | dinov3 | Train:   [340/500]  eta: 0:03:32  loss: 0.000  time: 1.143729  data: 1.075267  mem: 335  (max mem: 400)
+2025-11-14 11:55:30 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.070964  data: 0.013304  mem: 338  (max mem: 400)
+2025-11-14 11:55:30 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.042848  data: 0.003326  mem: 338  (max mem: 400)
+2025-11-14 11:55:30 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.046735 s / it)
+2025-11-14 11:55:30 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:55:30 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:55:30 |  | INFO | dinov3 | Step 350: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:55:30 |  | INFO | dinov3 | Train:   [350/500]  eta: 0:03:20  loss: 0.001  time: 1.168480  data: 1.095933  mem: 335  (max mem: 400)
+2025-11-14 11:55:46 |  | INFO | dinov3 | Train:   [360/500]  eta: 0:03:07  loss: 0.000  time: 1.542605  data: 1.459879  mem: 335  (max mem: 400)
+2025-11-14 11:55:54 |  | INFO | dinov3 | Train:   [370/500]  eta: 0:02:52  loss: 0.000  time: 1.164459  data: 1.097883  mem: 335  (max mem: 400)
+2025-11-14 11:56:09 |  | INFO | dinov3 | Train:   [380/500]  eta: 0:02:39  loss: 0.001  time: 1.171139  data: 1.099200  mem: 335  (max mem: 400)
+2025-11-14 11:56:25 |  | INFO | dinov3 | Train:   [390/500]  eta: 0:02:27  loss: 0.000  time: 1.540967  data: 1.453638  mem: 335  (max mem: 400)
+2025-11-14 11:56:32 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.043267  data: 0.013942  mem: 338  (max mem: 400)
+2025-11-14 11:56:32 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.034641  data: 0.003735  mem: 338  (max mem: 400)
+2025-11-14 11:56:32 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.034641 s / it)
+2025-11-14 11:56:32 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:56:32 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:56:32 |  | INFO | dinov3 | Step 400: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:56:32 |  | INFO | dinov3 | Train:   [400/500]  eta: 0:02:12  loss: 0.000  time: 1.161032  data: 1.079184  mem: 335  (max mem: 400)
+2025-11-14 11:56:48 |  | INFO | dinov3 | Train:   [410/500]  eta: 0:01:59  loss: 0.001  time: 1.154799  data: 1.080997  mem: 335  (max mem: 400)
+2025-11-14 11:57:03 |  | INFO | dinov3 | Train:   [420/500]  eta: 0:01:46  loss: 0.000  time: 1.512033  data: 1.438527  mem: 335  (max mem: 400)
+2025-11-14 11:57:10 |  | INFO | dinov3 | Train:   [430/500]  eta: 0:01:32  loss: 0.000  time: 1.135241  data: 1.065843  mem: 335  (max mem: 400)
+2025-11-14 11:57:25 |  | INFO | dinov3 | Train:   [440/500]  eta: 0:01:19  loss: 0.001  time: 1.129399  data: 1.060892  mem: 335  (max mem: 400)
+2025-11-14 11:57:33 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.050708  data: 0.010133  mem: 338  (max mem: 400)
+2025-11-14 11:57:33 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.037461  data: 0.002533  mem: 338  (max mem: 400)
+2025-11-14 11:57:33 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.037461 s / it)
+2025-11-14 11:57:33 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:57:33 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:57:33 |  | INFO | dinov3 | Step 450: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:57:41 |  | INFO | dinov3 | Train:   [450/500]  eta: 0:01:06  loss: 0.000  time: 1.509163  data: 1.425696  mem: 335  (max mem: 400)
+2025-11-14 11:57:48 |  | INFO | dinov3 | Train:   [460/500]  eta: 0:00:52  loss: 0.000  time: 1.143124  data: 1.068984  mem: 335  (max mem: 400)
+2025-11-14 11:58:03 |  | INFO | dinov3 | Train:   [470/500]  eta: 0:00:39  loss: 0.000  time: 1.132311  data: 1.063465  mem: 335  (max mem: 400)
+2025-11-14 11:58:18 |  | INFO | dinov3 | Train:   [480/500]  eta: 0:00:26  loss: 0.000  time: 1.508040  data: 1.426822  mem: 335  (max mem: 400)
+2025-11-14 11:58:26 |  | INFO | dinov3 | Train:   [490/500]  eta: 0:00:13  loss: 0.000  time: 1.145458  data: 1.073436  mem: 335  (max mem: 400)
+2025-11-14 11:58:41 |  | INFO | dinov3 | Validation:   [0/4]  eta: 0:00:00    time: 0.045144  data: 0.016772  mem: 338  (max mem: 400)
+2025-11-14 11:58:41 |  | INFO | dinov3 | Validation:   [3/4]  eta: 0:00:00    time: 0.035315  data: 0.004193  mem: 338  (max mem: 400)
+2025-11-14 11:58:41 |  | INFO | dinov3 | Validation:  Total time: 0:00:00 (0.035315 s / it)
+2025-11-14 11:58:41 |  | INFO | dinov3 | mIoU per class:
+ Class Index  mIoU
+           0 100.0
+           1   NaN
+2025-11-14 11:58:41 |  | INFO | dinov3 | {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:58:41 |  | INFO | dinov3 | Step 500: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:58:41 |  | INFO | dinov3 | Train:   [499/500]  eta: 0:00:01  loss: 0.000  time: 1.517509  data: 1.430561  mem: 335  (max mem: 400)
+2025-11-14 11:58:41 |  | INFO | dinov3 | Train:  Total time: 0:10:59 (1.318857 s / it)
+2025-11-14 11:58:41 |  | INFO | dinov3 | Training is done!
+2025-11-14 11:58:41 |  | INFO | dinov3 | Final best metrics: {'mIoU': 100.0, 'acc': 100.0, 'aAcc': 100.0, 'dice': 100.0, 'fscore': 100.0, 'precision': 100.0, 'recall': 100.0}
+2025-11-14 11:58:43 |  | INFO | dinov3 | Training finished.

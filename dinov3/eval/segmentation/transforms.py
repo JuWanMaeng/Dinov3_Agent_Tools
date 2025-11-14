@@ -387,74 +387,6 @@ class MaskToTensor(torch.nn.Module):
             return img, Mask(label).permute(2, 0, 1)
         return img, Mask(label)
 
-class ConvertMaskBinary(torch.nn.Module):
-    """Converts a 0/255 mask to a 0/1 mask.
-    
-    This must be applied BEFORE any padding (which uses 255 for ignore_index)
-    and BEFORE ReduceZeroLabel (which expects class indices 0, 1, ...).
-    """
-    def forward(self, img, label):
-        # label은 0 또는 255 값을 가진 MaskTensor입니다.
-        # 0/1 값으로 변환합니다.
-        # v2.Compose가 이 텐서를 계속 마스크로 인식하도록
-        # tv_tensors.Mask로 다시 감싸줍니다.
-        return img, Mask(label // 255)
-
-#########
-# 원본 코드
-########
-
-# def make_segmentation_train_transforms(
-#     *,
-#     img_size: Optional[Union[List[int], int]] = None,
-#     image_interpolation: T.InterpolationMode = T.InterpolationMode.BILINEAR,
-#     label_interpolation: T.InterpolationMode = T.InterpolationMode.NEAREST,
-#     random_img_size_ratio_range: Optional[List[float]] = None,
-#     crop_size: Optional[Tuple[int]] = None,
-#     flip_prob: float = 0.0,
-#     reduce_zero_label: bool = False,
-#     mean: Sequence[float] = [mean * 255 for mean in IMAGENET_DEFAULT_MEAN],
-#     std: Sequence[float] = [std * 255 for std in IMAGENET_DEFAULT_STD],
-# ):
-#     # Label conversion to tensor
-#     transforms_list = [MaskToTensor()]  # type: List[Any]
-#     # Resizing
-#     if img_size is not None:
-#         transforms_list.append(
-#             CustomResize(
-#                 img_resize=img_size,
-#                 image_interpolation=image_interpolation,
-#                 label_interpolation=label_interpolation,
-#                 inference_mode="whole",  # when training, always resize image + label
-#                 random_img_size_ratio_range=random_img_size_ratio_range,
-#             )
-#         )
-#     # Conversion to torch.Tensor
-#     transforms_list.extend([v2.PILToTensor()])
-
-#     # Reducing zero labels
-#     if reduce_zero_label:
-#         transforms_list.append(ReduceZeroLabel())
-
-#     # Random crop
-#     if crop_size:
-#         transforms_list.append(RandomCropWithLabel(crop_size=crop_size))
-
-#     # Rest of the image and label-specific transforms
-#     transforms_list.extend(
-#         [
-#             MaybeApplyImageLabel(transform=Fv.hflip, threshold=flip_prob),
-#             # PhotoMetricDistortion(),
-#             NormalizeImage(mean=mean, std=std),
-#         ]
-#     )
-
-#     # Pad if cropping was done previously
-#     if crop_size:
-#         transforms_list.append(PadTensor(pad_shape=crop_size, img_pad_value=0, label_pad_value=255))
-
-#     return v2.Compose(transforms_list)
-
 
 def make_segmentation_train_transforms(
     *,
@@ -484,13 +416,6 @@ def make_segmentation_train_transforms(
     # Conversion to torch.Tensor
     transforms_list.extend([v2.PILToTensor()])
 
-    # ====================================================================
-    # ## 💡 수정된 부분 ##
-    # 0/255 마스크를 0/1 클래스 인덱스로 변환합니다.
-    # 이 작업은 패딩(255)이나 ReduceZeroLabel(0을 255로 변경) 전에 수행되어야 합니다.
-    transforms_list.append(ConvertMaskBinary())
-    # ====================================================================
-
     # Reducing zero labels
     if reduce_zero_label:
         transforms_list.append(ReduceZeroLabel())
@@ -510,46 +435,10 @@ def make_segmentation_train_transforms(
 
     # Pad if cropping was done previously
     if crop_size:
-        # 이제 마스크는 0/1 (또는 ReduceZeroLabel 적용 시 0/255) 값을 가지므로
-        # label_pad_value=255는 패딩 영역을 고유하게 식별합니다.
         transforms_list.append(PadTensor(pad_shape=crop_size, img_pad_value=0, label_pad_value=255))
 
     return v2.Compose(transforms_list)
 
-# def make_segmentation_eval_transforms(
-#     *,
-#     img_size: Optional[Union[List[int], int]] = None,
-#     inference_mode: str = "whole",
-#     image_interpolation: T.InterpolationMode = T.InterpolationMode.BILINEAR,
-#     label_interpolation: T.InterpolationMode = T.InterpolationMode.NEAREST,
-#     use_tta: bool = False,
-#     tta_ratios: Sequence[float] = [1.0],
-#     mean: Sequence[float] = [mean * 255 for mean in IMAGENET_DEFAULT_MEAN],
-#     std: Sequence[float] = [std * 255 for std in IMAGENET_DEFAULT_STD],
-# ):
-#     # Label conversion to tensor
-#     transforms_list = [MaskToTensor()]  # type: List[Any]
-#     # Optional resizing
-#     if img_size is not None:
-#         transforms_list.append(
-#             CustomResize(
-#                 img_resize=img_size,
-#                 image_interpolation=image_interpolation,
-#                 label_interpolation=label_interpolation,
-#                 inference_mode=inference_mode,
-#                 use_tta=use_tta,
-#                 tta_img_size_ratio_range=tta_ratios,
-#             )
-#         )
-
-#     if use_tta:
-#         transforms_list.append(HorizontalFlipAug())
-#     # Always return a list of tensors for prediction at evaluation time
-#     transforms_list.append(TransformImages(transforms=[v2.PILToTensor(), NormalizeImage(mean=mean, std=std)]))
-
-#     return v2.Compose(transforms_list)
-
-# (이전에 추가한 ConvertMaskBinary 클래스가 있다고 가정)
 
 def make_segmentation_eval_transforms(
     *,
@@ -564,14 +453,6 @@ def make_segmentation_eval_transforms(
 ):
     # Label conversion to tensor
     transforms_list = [MaskToTensor()]  # type: List[Any]
-    
-    # ====================================================================
-    # ## 💡 수정된 부분 ##
-    # 0/255 마스크를 0/1 클래스 인덱스로 변환합니다.
-    # 'reduce_zero_label: True'가 올바르게 작동하려면 이 변환이 필수입니다.
-    transforms_list.append(ConvertMaskBinary())
-    # ====================================================================
-
     # Optional resizing
     if img_size is not None:
         transforms_list.append(

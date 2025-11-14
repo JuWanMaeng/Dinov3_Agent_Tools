@@ -67,11 +67,11 @@ print(f"Processing images from: {input_dir}")
 print(f"Saving results to: {save_dir}")
 
 # "검은색" 특징을 얼마나 중요하게 볼지 결정하는 가중치
-color_weight = 10.0
+color_weight = 20.0
 # K-Means 클러스터 개수
-k = 15 
+k = 10 
 # K-Means 반복 실행 횟수
-n_init = 20 # ⬅️ (수정) 10 -> 20 (기존 코드 기준)
+n_init = 10 # ⬅️ (수정) 10 -> 20 (기존 코드 기준)
 
 for filename in os.listdir(input_dir):
     # 1. 확장자 검사

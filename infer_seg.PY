@@ -143,8 +143,8 @@ def visualize_overlay(original_pil_img, mask_numpy, color=(255, 0, 0), alpha=0.5
 # --- 4. 메인 추론 함수 ---
 def main_inference():
     # --- 설정 ---
-    HEAD_WEIGHTS_PATH = "weights/dinov3_vitb16_pretrain.pth" # ⚠️ 여기에 헤드 가중치 경로 입력
-    IMAGE_PATH = "imgs/seg_test/particle_score(0.91)_B16AAA_POSTDICE_874.jpg"      # ⚠️ 여기에 테스트 이미지 경로 입력
+    HEAD_WEIGHTS_PATH = "C:/workspace/dinov3/debug_output/model_final.pth" # ⚠️ 여기에 헤드 가중치 경로 입력
+    IMAGE_PATH = "C:/workspace/dinov3/imgs/seg_test/[000001]R1xC22-4-82pxl.png"      # ⚠️ 여기에 테스트 이미지 경로 입력
     OUTPUT_PATH = "overlay_result.png"
     
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -169,7 +169,7 @@ def main_inference():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        backbone = torch.hub.load(REPO_DIR, 'dinov3_vitb16', source='local', weights = HEAD_WEIGHTS_PATH)
+        backbone = torch.hub.load(REPO_DIR, 'dinov3_vitb16', source='local', weights = "weights/dinov3_vitb16_pretrain.pth")
     backbone.eval() # 백본은 항상 eval 모드
     
     # 2) LinearHead 정의 (config 기반)
@@ -185,15 +185,36 @@ def main_inference():
     
     # 4) 학습된 LinearHead 가중치 로드
     try:
-        # ⚠️ 중요: LinearHead 전체의 state_dict를 로드합니다.
-        model.head.load_state_dict(torch.load(HEAD_WEIGHTS_PATH, map_location=DEVICE))
-        print(f"헤드 가중치 로드 성공: {HEAD_WEIGHTS_PATH}")
+        # 체크포인트 딕셔너리 전체를 로드합니다.
+        checkpoint = torch.load(HEAD_WEIGHTS_PATH, map_location=DEVICE)
+        
+        # 'model' 키 내부의 state_dict를 가져옵니다.
+        original_state_dict = checkpoint['model']
+        
+        # ⚠️ "segmentation_model.1." 접두사를 제거하기 위한 새 딕셔너리 생성
+        new_state_dict = {}
+        prefix_to_remove = "segmentation_model.1."
+        
+        for key, value in original_state_dict.items():
+            if key.startswith(prefix_to_remove):
+                # 접두사를 제거한 새 키를 만듭니다.
+                new_key = key[len(prefix_to_remove):]
+                new_state_dict[new_key] = value
+            else:
+                # (혹시 모를 다른 키들을 위해)
+                new_state_dict[key] = value 
+
+        # ⚠️ 접두사가 제거된 new_state_dict를 로드합니다.
+        model.head.load_state_dict(new_state_dict)
+        
+        print(f"헤드 가중치 로드 및 키 이름 수정 성공: {HEAD_WEIGHTS_PATH}")
+        
     except FileNotFoundError:
         print(f"경고: '{HEAD_WEIGHTS_PATH}' 에서 가중치 파일을 찾을 수 없습니다. 랜덤 가중치로 추론합니다.")
     except Exception as e:
         print(f"가중치 로드 오류: {e}")
         print("    (팁: 저장된 state_dict가 'LinearHead' 클래스 구조와 일치하는지 확인하세요.)")
-        return
+        return  
 
     # --- 3. 이미지 로드 및 전처리 ---
     print(f"이미지 로드: {IMAGE_PATH}")
