@@ -211,7 +211,7 @@ class EditWindowHandler:
 # -------------------------------------------------
 # (A-2) 경로 설정
 # -------------------------------------------------
-input_dir = r"C:\workspace\dinov3\imgs\tmp"
+input_dir = r"C:\workspace\dinov3\imgs\crack"
 save_dir = "output/interactive_masks" # ⬅️ 결과 폴더명 변경
 valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tif')
 
@@ -228,8 +228,8 @@ patch_size = model.patch_embed.patch_size[0] # (16)
 # -------------------------------------------------
 # 2. 전처리용 Transform 정의
 # -------------------------------------------------
-img_size = 1024
-crop_size = 1024
+img_size = 2048
+crop_size = 2048
 
 transform_dino = T.Compose([
     T.Resize(img_size, interpolation=T.InterpolationMode.BICUBIC, antialias=True),

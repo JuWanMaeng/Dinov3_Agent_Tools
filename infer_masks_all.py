@@ -20,9 +20,9 @@ def min_max_scale(img):
 # (A-2) ⬅️ (추가) 경로 설정
 # -------------------------------------------------
 # ❗️ 1. 이미지가 모여있는 폴더 경로
-input_dir = r"C:/data/DinoCrack/images/training" 
+input_dir = r"C:\workspace\dinov3\imgs\ink" 
 # ❗️ 2. Annotation 마스크를 저장할 폴더 경로
-save_dir = r"C:/data/DinoCrack/annotations/training"  
+save_dir = r"C:\workspace\dinov3\output\black_weight_mask\ink"  
 # ❗️ 3. 처리할 이미지 확장자
 valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tif')
 
@@ -183,13 +183,13 @@ for filename in os.listdir(input_dir):
         plt.subplot(1, 3, 1) 
         plt.imshow(img_cropped) 
         plt.axis("off")
-        plt.title(f"Original: {filename}") # ⬅️ 파일명 표시
+        plt.title(f"Input image, {crop_size}x{crop_size}") # ⬅️ 파일명 표시
 
         # --- 2번: PCA 피처맵 (DINO-only) ---
         plt.subplot(1, 3, 2)
         plt.imshow(pca_img) 
         plt.axis("off")
-        plt.title(f"PCA Feature Map (DINOv3-only, {H}x{W})") 
+        plt.title(f"DINOv3 PCA Feature Map, {H}x{W})") 
 
         # --- 3번: Crack 오버레이 이미지 ---
         plt.subplot(1, 3, 3) 
@@ -201,7 +201,7 @@ for filename in os.listdir(input_dir):
 
         plt.imshow(overlay_image)
         plt.axis("off")
-        plt.title(f"Crack Overlay (Label {crack_label}, Smoothed)")
+        plt.title(f"Mask Overlay, {crop_size}x{crop_size}")
 
         plt.savefig(save_image_path, bbox_inches='tight', dpi=300)
         plt.close() # ⬅️ (중요) 메모리 누수 방지를 위해 figure를 닫습니다.
