@@ -19,10 +19,11 @@ def min_max_scale(img):
 # -------------------------------------------------
 # (A-2) ⬅️ (추가) 경로 설정
 # -------------------------------------------------
+task = 'ink'
 # ❗️ 1. 이미지가 모여있는 폴더 경로
-input_dir = r"C:\workspace\dinov3\imgs\ink" 
+input_dir = f"imgs/{task}"
 # ❗️ 2. Annotation 마스크를 저장할 폴더 경로
-save_dir = r"C:\workspace\dinov3\output\black_weight_mask\ink"  
+save_dir = f"C:/workspace/dinov3/output/black_weight_mask/{task}"  
 # ❗️ 3. 처리할 이미지 확장자
 valid_extensions = ('.png', '.jpg', '.jpeg', '.bmp', '.tif')
 
@@ -69,9 +70,9 @@ print(f"Saving results to: {save_dir}")
 # "검은색" 특징을 얼마나 중요하게 볼지 결정하는 가중치
 color_weight = 20.0
 # K-Means 클러스터 개수
-k = 10 
+k = 10
 # K-Means 반복 실행 횟수
-n_init = 10 # ⬅️ (수정) 10 -> 20 (기존 코드 기준)
+n_init = 30 # ⬅️ (수정) 10 -> 20 (기존 코드 기준)
 
 for filename in os.listdir(input_dir):
     # 1. 확장자 검사
@@ -108,6 +109,7 @@ for filename in os.listdir(input_dir):
             feats = model.forward_features(x)
 
         feat_tokens = feats["x_norm_patchtokens"] 
+        feat_tokens = feat_tokens[:,:,:256]
         features_flat = feat_tokens.squeeze(0).cpu().numpy() 
 
         B, N, C = feat_tokens.shape
@@ -130,6 +132,7 @@ for filename in os.listdir(input_dir):
         # -------------------------------------------------
         scaled_color_features = color_features_flat * color_weight
         combined_features = np.concatenate([features_flat, scaled_color_features], axis=1)
+        # combined_features = features_flat
 
         # -------------------------------------------------
         # 4. PCA 피처맵 생성 (시각화용)
